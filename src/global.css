@@ -27,6 +27,16 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --border: #ddd;
+  --link: #444444;
+  --link-hover: #888888;
+  --background: #fff;
+  --button-hover: #f0f0f0;
+  --input: #f5f5f5;
+  --green: #28a745;
+  --footer-links: #666;
+  --footer-links-hover: #333;
+  --text: #1a1a1a;
 }
 
 * {
@@ -45,7 +55,7 @@ body {
   line-height: 1.5;
   font-weight: 400;
   font-size: 16px;
-  color: #1a1a1a;
+  color: var(--text);
 }
 
 h1,
@@ -59,11 +69,11 @@ h6 {
 }
 
 a {
-  color: #444444;
+  color: var(--link);
 }
 
 a:hover {
-  color: #888888;
+  color: var(--link-hover);
 }
 
 button {
@@ -93,18 +103,18 @@ textarea {
   padding: 0 8px;
 }
 
-/* Update url-input width to be 100% since container will control max width */
-.url-input {
+.input {
   padding: 8px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 4px;
   width: 100%;
-  background: #f5f5f5;
+  background: var(--input);
+  color: var(--text);
 }
 
 .copy-button {
   padding: 8px;
-  color: #666;
+  color: var(--border);
   border-radius: 4px;
   transition: all 0.2s;
   display: flex;
@@ -113,11 +123,11 @@ textarea {
 }
 
 .copy-button:hover {
-  background: #f0f0f0;
+  background: var(--button-hover);
 }
 
 .copy-button:active {
-  background: #e5e5e5;
+  background: var(--input);
 }
 
 .copy-button img {
@@ -126,7 +136,7 @@ textarea {
 }
 
 .copy-button.copied {
-  background: #28a745;
+  background: var(--green);
 }
 
 /* Add footer styles */
@@ -137,49 +147,62 @@ textarea {
   right: 0;
   text-align: center;
   font-size: 14px;
-  color: #666;
+  color: var(--footer-links);
 }
 
 .footer a {
-  color: #666;
+  color: var(--footer-links);
   text-decoration: none;
   font-weight: 500;
 }
 
 .footer a:hover {
-  color: #333;
+  color: var(--footer-links-hover);
 }
 
 @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #131313;
+    --border: #3d3d3d;
+    --link: #a9a9a9;
+    --link-hover: #888;
+    --button-hover: #222222;
+    --input: #191919;
+    --green: #28a745;
+    --footer-links: #999999;
+    --footer-links-hover: #ccc;
+    --text: #fff;
+  }
+
   body {
     color: #ddd;
   }
 
   #app {
-    background-color: #131313;
+    background-color: var(--background);
   }
 
   a {
-    color: #a9a9a9;
+    color: var(--link);
   }
 
   a:hover {
-    color: #888;
+    color: var(--link-hover);
   }
 
   .footer,
   .footer a {
-    color: #999;
+    color: var(--footer-links);
   }
 
   .footer a:hover {
-    color: #ccc;
+    color: var(--footer-links-hover);
   }
 
   .url-input {
-    border-color: #3d3d3d;
-    background-color: #191919;
-    color: #fff;
+    border-color: var(--border);
+    background-color: var(--input);
+    color: var(--text);
   }
 
   .copy-button img {
@@ -187,10 +210,114 @@ textarea {
   }
 
   .copy-button:hover {
-    background: #222;
+    background: var(--button-hover);
   }
 
   .copy-button:active {
-    background: #333;
+    background: var(--input);
   }
 }
+
+.bangs-container {
+  padding: 30px;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+table {
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  padding: 16px 32px;
+  width: 80%;
+  margin: 20px 0 0 0;
+}
+
+td:nth-child(2) {
+  max-width: 400px;
+  overflow-x: auto;
+}
+
+.button {
+  padding: 8px 12px;
+  border: 1px solid;
+  border-radius: 4px;
+  width: 100%;
+  border-color: var(--border);
+  background-color: var(--input);
+  color: var(--text);
+  width: fit-content;
+  transition: all 0.2s;
+}
+
+.button:hover {
+  background-color: var(--button-hover);
+}
+
+.back {
+  position: absolute;
+  left: 48px;
+  padding: 4px 16px;
+  border-radius: 8px;
+  transition: all 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.back:hover {
+  background-color: var(--border);
+  color: #a9a9a9;
+}
+
+dialog {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  background-color: var(--background);
+  color: var(--text);
+  padding: 24px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+::backdrop {
+  background: rgba(0, 0, 0, 0.8);
+  transition: all 0.2s;
+}
+
+dialog form {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 16px 0;
+}
+
+dialog h2 {
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.sm {
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--link);
+}
+
+.inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-container input {
+  margin-top: 4px;
+} 
