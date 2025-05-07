@@ -208,7 +208,7 @@ textarea {
     color: var(--text);
   }
 
-  .copy-button img {
+  .copy-button img, td button img {
     filter: invert(1);
   }
 
@@ -235,11 +235,25 @@ table {
   padding: 16px 32px;
   width: 80%;
   margin: 20px 0 0 0;
+  border-spacing: 0 12px;
 }
 
 td:nth-child(2) {
   max-width: 400px;
   overflow-x: auto;
+}
+
+td:nth-child(4) {
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & button {
+    display: flex;
+    &:hover {
+      background-color: #e7000b;
+    }
+  }
 }
 
 .button {
