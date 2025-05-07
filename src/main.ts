@@ -2,6 +2,13 @@ import { bangs } from "./bang";
 import { renderBangsPage } from "./dataset";
 import "./global.css";
 
+export type CustomBang = {
+  c: "custom";
+  d: string;
+  t: string;
+  u: string;
+};
+
 function noSearchDefaultPageRender() {
   const app = document.querySelector<HTMLDivElement>("#app")!;
   app.innerHTML = `
@@ -33,22 +40,24 @@ function noSearchDefaultPageRender() {
               <div class="input-container">
                 <label for="bang">Bang</label>
                 <label class="sm" for="bang">This will override existing DuckDuckGo bangs</label>
-                <input class="input" type="text" id="bang" placeholder="p" required />
+                <input class="input" type="text" id="bang" name="bang" placeholder="p" required />
               </div>
               <div class="input-container">
                 <label for="domain">Domain</label>
                 <label class="sm" for="domain">This will be used as a default domain</label>
-                <input class="input" type="text" id="domain" placeholder="perplexity.ai" required />
+                <input class="input" type="text" id="domain" name="domain" placeholder="perplexity.ai" required />
               </div>
               <div class="input-container" style="grid-column: span 2;">
                 <label for="bang">Search URL</label>
                 <label class="sm" for="bang">URL with <code>{{{s}}}</code> as placeholder for the search query</label>
-                <input class="input" type="text" id="search-url" placeholder="https://perplexity.ai/search?p={{{s}}}}" required />
+                <input class="input" type="text" id="search-url" name="search-url" placeholder="https://perplexity.ai/search?p={{{s}}}}" required />
               </div>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 8px;">
               <button id="close" class="button">Close</button>
-              <button type="submit" class="button">Add</button>
+              <button type="submit" class="button" data-variant="primary" id="add-button">
+                Add
+              </button>
             </div>
             </form>
         </dialog>
@@ -63,14 +72,16 @@ function noSearchDefaultPageRender() {
     </div>
   `;
 
-  const dialog = app.querySelector<HTMLDialogElement>("#add-dialog")!;
-  const closeButton = app.querySelector("#close")!;
-  const openButton = app.querySelector("#open-dialog")!;
-  const form = app.querySelector<HTMLFormElement>("form")!;
+  const dialog = app.querySelector<HTMLDialogElement>("#add-dialog");
+  const closeButton = app.querySelector<HTMLButtonElement>("#close");
+  const openButton = app.querySelector<HTMLButtonElement>("#open-dialog");
+  const form = app.querySelector<HTMLFormElement>("form");
+  const copyButton = app.querySelector<HTMLButtonElement>(".copy-button");
+  const copyIcon = copyButton?.querySelector("img");
+  const urlInput = app.querySelector<HTMLInputElement>("#url-input");
+  const addButton = app.querySelector<HTMLButtonElement>("#add-button");
 
-  const copyButton = app.querySelector<HTMLButtonElement>(".copy-button")!;
-  const copyIcon = copyButton.querySelector("img")!;
-  const urlInput = app.querySelector<HTMLInputElement>("#url-input")!;
+  if (!dialog || !closeButton || !openButton || !form || !copyButton || !copyIcon || !urlInput || !addButton) return;
 
   copyButton.addEventListener("click", async () => {
     await navigator.clipboard.writeText(urlInput.value);
@@ -84,7 +95,7 @@ function noSearchDefaultPageRender() {
   closeButton.addEventListener("click", (e) => {
     e.preventDefault();
     dialog.close();
-  })
+  });
 
   openButton.addEventListener("click", (e) => {
     e.preventDefault();
@@ -93,38 +104,44 @@ function noSearchDefaultPageRender() {
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const bang = (e.target as HTMLFormElement).elements.namedItem("bang") as HTMLInputElement;
-    const domain = (e.target as HTMLFormElement).elements.namedItem("domain") as HTMLInputElement;
-    const searchUrl = (e.target as HTMLFormElement).elements.namedItem("search-url") as HTMLInputElement;
+    const formData = new FormData(form);
+    const bang = formData.get("bang")?.toString().trim();
+    const domain = formData.get("domain")?.toString().trim();
+    const searchUrl = formData.get("search-url")?.toString().trim();
 
-    if (!bang.value || !domain.value || !searchUrl.value) return;
+    if (!bang || !domain || !searchUrl) return;
 
     const customBangs = getCustomBangs();
     customBangs.push({
       c: "custom",
-      d: domain.value,
-      t: bang.value,
-      u: searchUrl.value,
+      d: domain,
+      t: bang,
+      u: searchUrl,
     });
     localStorage.setItem("custom-bangs", JSON.stringify(customBangs));
-    dialog.close();
-  })
+    form.reset();
+    const previousButtonContent = addButton.innerHTML;
+    addButton.innerHTML = `<img src="/success.svg" alt="success-icon" /> Success!`;
+    setTimeout(() => {
+      addButton.innerHTML = previousButtonContent;
+    }, 3000);
+  });
 }
 
-function getCustomBangs() {
+function getCustomBangs(): CustomBang[] {
   const raw = localStorage.getItem("custom-bangs");
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       return parsed.filter(
-        (b) => b && typeof b.t === "string" && typeof b.u === "string" && typeof b.d === "string"
+        (b): b is CustomBang =>
+          b && typeof b.t === "string" && typeof b.u === "string" && typeof b.d === "string"
       );
     }
   } catch {}
   return [];
 }
-
 
 const allBangs = [...getCustomBangs(), ...bangs];
 
@@ -143,7 +160,6 @@ function getBangredirectUrl() {
   
   const bangCandidate = match?.[1]?.toLowerCase();
   const selectedBang = allBangs.find((b) => b.t === bangCandidate) ?? defaultBang;
-  console.log(getCustomBangs(), match, bangCandidate, selectedBang)
 
   // Remove the first bang from the query
   const cleanQuery = query.replace(/!\S+\s*/i, "").trim();

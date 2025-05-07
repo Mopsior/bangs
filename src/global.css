@@ -28,6 +28,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --border: #ddd;
+  --primary-background: #131313;
+  --primary-background-hover: #151515;
   --link: #444444;
   --link-hover: #888888;
   --background: #fff;
@@ -163,12 +165,13 @@ textarea {
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #131313;
+    --primary-background: #ccc;
+    --primary-background-hover: #8f8f8f;
     --border: #3d3d3d;
     --link: #a9a9a9;
     --link-hover: #888;
     --button-hover: #222222;
     --input: #191919;
-    --green: #28a745;
     --footer-links: #999999;
     --footer-links-hover: #ccc;
     --text: #fff;
@@ -255,6 +258,19 @@ td:nth-child(2) {
   background-color: var(--button-hover);
 }
 
+.button[data-variant="primary"] {
+  width: auto;
+  background-color: var(--primary-background);
+  color: var(--background);
+  display: flex;
+  align-items: center;
+  gap: 0 8px;
+  
+  &:hover {
+    background-color: var(--primary-background-hover);
+  }
+}
+
 .back {
   position: absolute;
   left: 48px;
@@ -263,11 +279,11 @@ td:nth-child(2) {
   transition: all 0.15s;
   cursor: pointer;
   text-decoration: none;
-}
 
-.back:hover {
-  background-color: var(--border);
-  color: #a9a9a9;
+  &:hover {
+    background-color: var(--border);
+    color: #a9a9a9;
+  }
 }
 
 dialog {
@@ -277,15 +293,66 @@ dialog {
   background-color: var(--background);
   color: var(--text);
   padding: 24px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  margin: auto auto;
+  --animation-duration: .5s;
+  --animation-type: cubic-bezier(0.42, 0, 0, 0.99);
+  transition:
+    display var(--animation-duration) allow-discrete var(--animation-type),
+    overlay var(--animation-duration) allow-discrete var(--animation-type);
+
+  animation: close var(--animation-duration) var(--animation-type);
+  &[open] {
+    animation: open var(--animation-duration) var(--animation-type);
+  }
 }
 
-::backdrop {
-  background: rgba(0, 0, 0, 0.8);
-  transition: all 0.2s;
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.0);
+  animation: backdrop-close 0.5s cubic-bezier(0.42, 0, 0, 0.99) forwards;
+}
+
+dialog[open]::backdrop {
+  animation: backdrop-open 0.5s cubic-bezier(0.42, 0, 0, 0.99) forwards;
+}
+
+@keyframes open {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes close {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+@keyframes backdrop-open {
+  from {
+    background: rgba(0, 0, 0, 0.0);
+  }
+  to {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+
+@keyframes backdrop-close {
+  from {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  to {
+    background: rgba(0, 0, 0, 0.0);
+  }
 }
 
 dialog form {
@@ -320,4 +387,4 @@ dialog h2 {
 
 .input-container input {
   margin-top: 4px;
-} 
+}
